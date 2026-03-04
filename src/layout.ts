@@ -70,6 +70,7 @@ function parseFontSize(font: string): number {
 // families. Auto-detected by measuring a reference emoji vs fontSize.
 
 const emojiPresentationRe = /\p{Emoji_Presentation}/u
+const sharedGraphemeSegmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
 
 function isEmojiGrapheme(g: string): boolean {
   return emojiPresentationRe.test(g) || g.includes('\uFE0F')
@@ -369,7 +370,8 @@ export function prepare(text: string, font: string, lineHeight?: number): Prepar
     return { paraData: [], lineHeight }
   }
 
-  const graphemeSegmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+  // Reuse a single grapheme segmenter (construction is cheap but no need to repeat)
+  const graphemeSegmenter = sharedGraphemeSegmenter
   const segments = segmenter.segment(normalized)
   const widths: number[] = []
   const isWordLike: boolean[] = []
@@ -432,9 +434,9 @@ export function prepare(text: string, font: string, lineHeight?: number): Prepar
       }
     } else {
       let w = measureSegment(seg.text, cache)
-      if (emojiCorrection > 0) {
+      if (emojiCorrection > 0 && emojiPresentationRe.test(seg.text)) {
         const ec = countEmojiGraphemes(seg.text, graphemeSegmenter)
-        if (ec > 0) w -= ec * emojiCorrection
+        w -= ec * emojiCorrection
       }
       widths.push(w)
       isWordLike.push(seg.isWordLike)
