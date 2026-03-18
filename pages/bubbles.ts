@@ -14,16 +14,9 @@ const PADDING_H = 12
 const BUBBLE_MAX_RATIO = 0.8
 
 const messages: { text: string, sent: boolean }[] = [
-  { text: "Hey! Did you see the new update?", sent: false },
-  { text: "Yeah the accessibility improvements are incredible, especially the screen reader support", sent: true },
-  { text: "The performance improvements are really noticeable, especially on older devices. I tested it on my old phone and it's night and day.", sent: false },
-  { text: "성능 최적화가 정말 많이 되었더라고요. 오래된 휴대폰에서도 확실히 빨라졌어요 👍", sent: true },
-  { text: "मैंने भी अपने पुराने फ़ोन पर टेस्ट किया, सचमुच बहुत अच्छा सुधार है 🎉", sent: false },
-  { text: "We should ship this before the weekend so everyone can test over the break", sent: true },
-  { text: "Agreed. I'll push the final changes tonight and we can review tomorrow morning.", sent: false },
-  { text: "좋아요, 그럼 내일 아침에 코드 리뷰하고 바로 배포합시다 🚀", sent: true },
-  { text: "हाँ कल सुबह रिव्यू करते हैं, good night! 😴", sent: false },
-  { text: "Perfect, see you tomorrow! 🙌", sent: true },
+  { text: "The performance improvements are greaaaaaaaaaaaaaaaaaaaatttttttt.", sent: false },
+  { text: "성능 최적화가 रिव्यू करते ह정말 많이되었더라고요. byyyyyyyeeeeeeeeeeeeeeeeeeee 🎉 👍", sent: true },
+
 ]
 
 type BubbleState = {
