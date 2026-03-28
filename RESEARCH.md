@@ -192,6 +192,8 @@ So this mode currently normalizes tabs to ordinary spaces rather than pretending
 
 One tooling caveat also showed up during validation: Safari `Range`-based probe extraction is less trustworthy for `pre-wrap` cases with preserved spaces or hard breaks. The height/line-count checks stayed exact, but the extracted line offsets could drift. For this mode, the span-based probe view was the better cross-check.
 
+I also did one broader raw-source validation pass to sanity-check whether `pre-wrap` needed a second permanent corpus layer. The first naive pass was noisy because raw Wikisource text is full of templates, headings, categories, and other markup that is not meaningful `pre-wrap` prose. After filtering obvious markup and using the script-appropriate extractor (`Range` for Southeast Asian and Arabic/Urdu snippets, span elsewhere), the filtered raw set went exact in both Chrome and Safari (`20/20`). That was enough evidence to keep the permanent repo coverage small: a compact browser-oracle set for spaces/newlines/indentation is the right durable check, and the giant raw-source pass can stay a one-time validation rather than a standing suite.
+
 ## Discovery: emoji canvas/DOM width discrepancy
 
 Canvas and DOM measure emoji at different widths on macOS (Chrome):
