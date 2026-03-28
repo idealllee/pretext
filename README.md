@@ -12,12 +12,8 @@ npm install @chenglou/pretext
 
 ## Demos
 
-Clone the repo, run `bun install`, then `bun start`, and open one of the `/demos/...` routes in your browser.
-
-- `pages/demos/bubbles.*`: message bubble shrinkwrap. Shows off `walkLineRanges()` for finding the tightest multiline width.
-- `pages/demos/dynamic-layout.*`: fixed-height editorial spread with logos as obstacles. Shows off `layoutNextLine()` and manual line routing.
-- `pages/demos/accordion.*`: an expand/collapse accordion whose body heights come from `prepare()` + `layout()`.
-- `pages/demos/masonry/*`: virtualization / occlusion demo with many text cards. Shows off `prepare()` + `layout()` as a DOM-free height engine.
+Clone the repo, run `bun install`, then `bun start`, and open the [demos index](/demos) in your browser.
+Alternatively, see them live at [chenglou.me/pretext](https://chenglou.me/pretext/)
 
 ## API
 
@@ -85,7 +81,7 @@ while (true) {
 }
 ```
 
-This usage allows rendering to canvas, SVG, WebGL and (eventually) server-side. See the [Dynamic Layout](/demos/dynamic-layout) demo for a richer example.
+This usage allows rendering to canvas, SVG, WebGL and (eventually) server-side. See the [demos index](/demos) for richer examples.
 
 ### API Glossary
 

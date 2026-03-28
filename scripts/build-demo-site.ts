@@ -8,7 +8,9 @@ const entrypoints = [
   'pages/demos/accordion.html',
   'pages/demos/bubbles.html',
   'pages/demos/dynamic-layout.html',
+  'pages/demos/editorial-engine.html',
   'pages/demos/masonry/index.html',
+  'pages/demos/variable-typographic-ascii.html',
 ]
 
 const result = Bun.spawnSync(
@@ -24,20 +26,60 @@ if (result.exitCode !== 0) {
   process.exit(result.exitCode)
 }
 
-for (const route of ['accordion', 'bubbles', 'dynamic-layout']) {
-  await moveHtmlToDirectoryRoute(route)
+const targets = [
+  { source: 'index.html', target: 'index.html' },
+  { source: 'accordion.html', target: 'accordion/index.html' },
+  { source: 'bubbles.html', target: 'bubbles/index.html' },
+  { source: 'dynamic-layout.html', target: 'dynamic-layout/index.html' },
+  { source: 'editorial-engine.html', target: 'editorial-engine/index.html' },
+  { source: 'masonry/index.html', target: 'masonry/index.html' },
+  { source: 'variable-typographic-ascii.html', target: 'variable-typographic-ascii/index.html' },
+]
+
+for (let index = 0; index < targets.length; index++) {
+  const entry = targets[index]!
+  await moveBuiltHtml(entry.source, entry.target)
 }
 
-async function moveHtmlToDirectoryRoute(route: string): Promise<void> {
-  const htmlPath = path.join(outdir, `${route}.html`)
-  const routeDir = path.join(outdir, route)
-  const targetPath = path.join(routeDir, 'index.html')
+await rm(path.join(outdir, 'pages'), { recursive: true, force: true })
 
-  let html = await readFile(htmlPath, 'utf8')
-  html = html.replaceAll('src="./', 'src="../')
-  html = html.replaceAll('href="./', 'href="../')
+async function resolveBuiltHtmlPath(relativePath: string): Promise<string> {
+  const candidates = [
+    path.join(outdir, relativePath),
+    path.join(outdir, 'pages', 'demos', relativePath),
+  ]
+  for (let index = 0; index < candidates.length; index++) {
+    const candidate = candidates[index]!
+    if (await Bun.file(candidate).exists()) return candidate
+  }
+  throw new Error(`Built HTML not found for ${relativePath}`)
+}
 
-  await mkdir(routeDir, { recursive: true })
+async function moveBuiltHtml(sourceRelativePath: string, targetRelativePath: string): Promise<void> {
+  const sourcePath = await resolveBuiltHtmlPath(sourceRelativePath)
+  const targetPath = path.join(outdir, targetRelativePath)
+  let html = await readFile(sourcePath, 'utf8')
+  html = rebaseRelativeAssetUrls(html, sourcePath, targetPath)
+  html = rewriteDemoLinksForStaticRoot(html, targetRelativePath)
+
+  await mkdir(path.dirname(targetPath), { recursive: true })
   await writeFile(targetPath, html)
-  await rm(htmlPath)
+  if (sourcePath !== targetPath) await rm(sourcePath)
+}
+
+function rebaseRelativeAssetUrls(html: string, sourcePath: string, targetPath: string): string {
+  return html.replace(/\b(src|href)="([^"]+)"/g, (_match, attr: string, value: string) => {
+    if (!value.startsWith('.')) return `${attr}="${value}"`
+
+    const absoluteAssetPath = path.resolve(path.dirname(sourcePath), value)
+    let relativeAssetPath = path.relative(path.dirname(targetPath), absoluteAssetPath)
+    relativeAssetPath = relativeAssetPath.split(path.sep).join('/')
+    if (!relativeAssetPath.startsWith('.')) relativeAssetPath = `./${relativeAssetPath}`
+    return `${attr}="${relativeAssetPath}"`
+  })
+}
+
+function rewriteDemoLinksForStaticRoot(html: string, targetRelativePath: string): string {
+  if (targetRelativePath !== 'index.html') return html
+  return html.replace(/\bhref="\/demos\/([^"/]+)"/g, (_match, slug: string) => `href="./${slug}/index.html"`)
 }
